@@ -1,90 +1,67 @@
-import Joi from 'joi';
+import { z } from 'zod';
 
-export const StudentValidationSchema = Joi.object({
-  id: Joi.string().required().messages({
-    'string.empty': 'Student ID is Required',
-  }),
-  name: Joi.object({
-    firstName: Joi.string().max(20).min(2).required().messages({
-      'string.empty': 'First name is Required',
-      'string.max': 'First name allowed 20 characters only',
-      'string.min': 'First name must have at least 2 characters',
-    }),
-    middleName: Joi.string().max(20).min(2).allow(null, '').messages({
-      'string.max': 'Middle name allowed 20 characters only',
-      'string.min': 'Middle name must have at least 2 characters',
-    }),
-    lastName: Joi.string().max(20).min(2).required().messages({
-      'string.empty': 'Last name is Required',
-      'string.max': 'Last name allowed 20 characters only',
-      'string.min': 'Last name must have at least 2 characters',
-    }),
-  }).required(),
-  gender: Joi.string().valid('male', 'female', 'other').required().messages({
-    'string.empty': 'Gender is Required',
-    'any.only': '{#label} is not supported',
-  }),
-  dateOfBirth: Joi.string(),
-  email: Joi.string().email().required().messages({
-    'string.empty': 'Email is Required',
-    'string.email': '{#label} is not a valid email type',
-  }),
-  contactNo: Joi.string().required().messages({
-    'string.empty': 'Contact number is Required',
-  }),
-  emergencyContactNo: Joi.string().required().messages({
-    'string.empty': 'Emergency contact number is Required',
-  }),
-  bloodGroup: Joi.string().valid(
-    'A+',
-    'A-',
-    'AB+',
-    'AB-',
-    'B+',
-    'B-',
-    'O+',
-    'O-',
-  ),
-  presentAddress: Joi.string().required().messages({
-    'string.empty': 'Present address is Required',
-  }),
-  permanentAddress: Joi.string().required().messages({
-    'string.empty': 'Permanent address is Required',
-  }),
-  guardian: Joi.object({
-    fatherName: Joi.string().required().messages({
-      'string.empty': 'Father name is Required',
-    }),
-    fatherOccupation: Joi.string().required().messages({
-      'string.empty': 'Father occupation is Required',
-    }),
-    fatherContactNo: Joi.string().required().messages({
-      'string.empty': 'Father contact number is Required',
-    }),
-    motherContactNo: Joi.string().required().messages({
-      'string.empty': 'Mother contact number is Required',
-    }),
-    motherOccupation: Joi.string().required().messages({
-      'string.empty': 'Mother occupation is Required',
-    }),
-    motherName: Joi.string().required().messages({
-      'string.empty': 'Mother name is Required',
-    }),
-  }).required(),
-  localGuardian: Joi.object({
-    name: Joi.string().required().messages({
-      'string.empty': 'Local guardian name is Required',
-    }),
-    occupation: Joi.string().required().messages({
-      'string.empty': 'Local guardian occupation is Required',
-    }),
-    contactNo: Joi.string().required().messages({
-      'string.empty': 'Local guardian contact number is Required',
-    }),
-    address: Joi.string().required().messages({
-      'string.empty': 'Local guardian address is Required',
-    }),
-  }).required(),
-  profileImg: Joi.string().allow(null, ''),
-  isActive: Joi.string().valid('active', 'blocked').default('active'),
+// Name Schema
+const nameValidationSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, 'First name must have at least 2 characters')
+    .max(20, 'First name allowed 20 characters only')
+    .refine((val) => val.trim().length > 0, 'First name is Required'),
+  middleName: z
+    .string()
+    .max(20, 'Middle name allowed 20 characters only')
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, 'Last name must have at least 2 characters')
+    .max(20, 'Last name allowed 20 characters only')
+    .refine((val) => val.trim().length > 0, 'Last name is Required'),
 });
+
+// Guardian Schema
+const guardianValidationSchema = z.object({
+  fatherName: z.string().min(1, 'Father name is Required'),
+  fatherOccupation: z.string().min(1, 'Father occupation is Required'),
+  fatherContactNo: z.string().min(1, 'Father contact number is Required'),
+  motherContactNo: z.string().min(1, 'Mother contact number is Required'),
+  motherOccupation: z.string().min(1, 'Mother occupation is Required'),
+  motherName: z.string().min(1, 'Mother name is Required'),
+});
+
+// Local Guardian Schema
+const localGuardianValidationSchema = z.object({
+  name: z.string().min(1, 'Local guardian name is Required'),
+  occupation: z.string().min(1, 'Local guardian occupation is Required'),
+  contactNo: z.string().min(1, 'Local guardian contact number is Required'),
+  address: z.string().min(1, 'Local guardian address is Required'),
+});
+
+// Student Schema
+const studentValidationSchema = z.object({
+  id: z.string().min(1, 'Student ID is Required'),
+  password: z
+    .string()
+    .min(6, 'Password minimum 6 digit')
+    .max(30, 'Password maximum 30 digit'),
+  name: nameValidationSchema,
+  gender: z.enum(['male', 'female', 'other'], {
+    required_error: 'Gender is Required',
+    invalid_type_error: '{#label} is not supported',
+  }),
+  dateOfBirth: z.string().optional(),
+  email: z.string().email('Invalid email address').min(1, 'Email is Required'),
+  contactNo: z.string().min(1, 'Contact number is Required'),
+  emergencyContactNo: z.string().min(1, 'Emergency contact number is Required'),
+  bloodGroup: z
+    .enum(['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'])
+    .optional(),
+  presentAddress: z.string().min(1, 'Present address is Required'),
+  permanentAddress: z.string().min(1, 'Permanent address is Required'),
+  guardian: guardianValidationSchema,
+  localGuardian: localGuardianValidationSchema,
+  profileImg: z.string().optional(),
+  isActive: z.enum(['active', 'blocked']).default('active'),
+  isDeleted: z.boolean().default(false),
+});
+
+export default studentValidationSchema;

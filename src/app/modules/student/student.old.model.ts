@@ -1,8 +1,13 @@
 import { Schema, model } from 'mongoose';
-import { Guardian, LocalGuardian, Name, Student } from './student.interface';
+import {
+  TGuardian,
+  TLocalGuardian,
+  TName,
+  TStudent,
+} from './student.interface';
 import validator from 'validator';
 
-const nameSchema = new Schema<Name>({
+const nameSchema = new Schema<TName>({
   firstName: {
     type: String,
     required: [true, 'First name is Required'],
@@ -33,7 +38,7 @@ const nameSchema = new Schema<Name>({
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, 'Father name is Required'],
@@ -60,7 +65,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Local guardian name is Required'],
@@ -79,7 +84,7 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<Student>({
+const studentSchema = new Schema<TStudent>({
   id: {
     type: String,
     required: [true, 'Student ID is Required'],
@@ -149,4 +154,4 @@ const studentSchema = new Schema<Student>({
   },
 });
 
-export const StudentModel = model<Student>('Student', studentSchema);
+export const StudentModel = model<TStudent>('Student', studentSchema);
