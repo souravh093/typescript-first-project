@@ -75,6 +75,12 @@ const studentSchema = new Schema<TStudent, StudentModal>(
     dateOfBirth: {
       type: String,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      ref: 'User',
+    },
     email: {
       type: String,
     },
@@ -100,9 +106,6 @@ const studentSchema = new Schema<TStudent, StudentModal>(
       type: localGuardianSchema,
     },
     profileImg: {
-      type: String,
-    },
-    isActive: {
       type: String,
     },
     isDeleted: {
