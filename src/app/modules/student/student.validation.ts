@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { z } from 'zod';
 
 // Name Schema
@@ -47,6 +48,9 @@ const studentValidationSchema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Gender is Required',
     invalid_type_error: '{#label} is not supported',
+  }),
+  user: z.string().refine((value) => Types.ObjectId.isValid(value), {
+    message: 'User must be a valid ObjectId',
   }),
   dateOfBirth: z.string().optional(),
   email: z.string().email('Invalid email address').min(1, 'Email is Required'),
