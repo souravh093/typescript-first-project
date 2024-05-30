@@ -39,7 +39,6 @@ const localGuardianValidationSchema = z.object({
 // Student Schema
 const createStudentValidationSchema = z.object({
   body: z.object({
-    // need help
     password: z
       .string()
       .min(6, 'Password minimum 6 digit')
@@ -50,7 +49,7 @@ const createStudentValidationSchema = z.object({
         required_error: 'Gender is Required',
         invalid_type_error: '{#label} is not supported',
       }),
-      dateOfBirth: z.date().optional(),
+      dateOfBirth: z.string().optional(),
       email: z
         .string()
         .email('Invalid email address')
@@ -65,6 +64,7 @@ const createStudentValidationSchema = z.object({
       presentAddress: z.string().min(1, 'Present address is Required'),
       permanentAddress: z.string().min(1, 'Permanent address is Required'),
       guardian: guardianValidationSchema,
+      admissionSemester: z.string(),
       localGuardian: localGuardianValidationSchema,
       profileImg: z.string().optional(),
     }),

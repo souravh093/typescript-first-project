@@ -24,7 +24,7 @@ export const StudentValidationSchema = Joi.object({
     'string.empty': 'Gender is Required',
     'any.only': '{#label} is not supported',
   }),
-  dateOfBirth: Joi.string(),
+  dateOfBirth: Joi.date(),
   email: Joi.string().email().required().messages({
     'string.empty': 'Email is Required',
     'string.email': '{#label} is not a valid email type',
