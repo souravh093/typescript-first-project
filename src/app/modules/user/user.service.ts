@@ -8,11 +8,10 @@ import { generateStudentId } from './user.utils';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // set student role and password
-  const userData: Partial<TUser> = {
-    password: password || (config.default_pass as string),
-    role: 'student',
-    id: '00934324',
-  };
+  const userData: Partial<TUser> = {};
+
+  userData.password = password || (config.default_pass as string);
+  userData.role = 'student';
 
   // find academic semester info
 
@@ -20,8 +19,11 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     payload.admissionSemester,
   );
 
+  if (!admissionSemester) {
+    throw new Error('Admission not found');
+  }
   // set Generate id
-  userData.id = admissionSemester ? generateStudentId(admissionSemester) : '';
+  userData.id = await generateStudentId(admissionSemester);
 
   // create a user
   const newUser = await User.create(userData);
