@@ -1,9 +1,10 @@
+import AppError from '../../errors/AppError';
 import { TStudent } from './student.interface';
 import { Student } from './student.model';
 
 const createStudentIntoDB = async (studentData: TStudent) => {
   if (await Student.isUserExists(studentData.id)) {
-    throw new Error('User already Exists');
+    throw new AppError(409, 'User already Exists');
   }
   const result = await Student.create(studentData); // built in static method
 
@@ -19,13 +20,27 @@ const createStudentIntoDB = async (studentData: TStudent) => {
 };
 
 const getAllStudentsFromDB = async () => {
-  const result = await Student.find();
+  const result = await Student.find()
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
 
   return result;
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  const result = await Student.findOne({ id: id });
+  const result = await Student.findById({ _id: id })
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
 
   return result;
 };
