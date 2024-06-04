@@ -24,7 +24,7 @@ const createStudentIntoDB = async (studentData: TStudent) => {
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   const queryObj = { ...query };
-  
+
   const studentSearchableField = ['email', 'name.firstName', 'presentAddress'];
   let searchTerm = '';
 
@@ -43,7 +43,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   excludeFields.forEach((element) => delete queryObj[element]);
 
-  console.log({query}, {queryObj})
+  console.log({ query }, { queryObj });
 
   let sort = '-createdAt';
 
