@@ -94,38 +94,20 @@ const updateNameValidationSchema = z.object({
 
 // Guardian Schema
 const updateGuardianValidationSchema = z.object({
-  fatherName: z.string().min(1, 'Father name is Required').optional(),
-  fatherOccupation: z
-    .string()
-    .min(1, 'Father occupation is Required')
-    .optional(),
-  fatherContactNo: z
-    .string()
-    .min(1, 'Father contact number is Required')
-    .optional(),
-  motherContactNo: z
-    .string()
-    .min(1, 'Mother contact number is Required')
-    .optional(),
-  motherOccupation: z
-    .string()
-    .min(1, 'Mother occupation is Required')
-    .optional(),
-  motherName: z.string().min(1, 'Mother name is Required').optional(),
+  fatherName: z.string().optional(),
+  fatherOccupation: z.string().optional(),
+  fatherContactNo: z.string().optional(),
+  motherContactNo: z.string().optional(),
+  motherOccupation: z.string().optional(),
+  motherName: z.string().optional(),
 });
 
 // Local Guardian Schema
 const updateLocalGuardianValidationSchema = z.object({
-  name: z.string().min(1, 'Local guardian name is Required').optional(),
-  occupation: z
-    .string()
-    .min(1, 'Local guardian occupation is Required')
-    .optional(),
-  contactNo: z
-    .string()
-    .min(1, 'Local guardian contact number is Required')
-    .optional(),
-  address: z.string().min(1, 'Local guardian address is Required').optional(),
+  name: z.string().optional(),
+  occupation: z.string().optional(),
+  contactNo: z.string().optional(),
+  address: z.string().optional(),
 });
 
 // Student Schema
@@ -162,10 +144,10 @@ const updateStudentValidationSchema = z.object({
           .string()
           .min(1, 'Permanent address is Required')
           .optional(),
-        guardian: updateGuardianValidationSchema,
+        guardian: updateGuardianValidationSchema.optional(),
         admissionSemester: z.string().optional(),
         academicDepartment: z.string().optional(),
-        localGuardian: updateLocalGuardianValidationSchema,
+        localGuardian: updateLocalGuardianValidationSchema.optional(),
         profileImg: z.string().optional(),
       })
       .optional(),

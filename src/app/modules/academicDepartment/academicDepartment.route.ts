@@ -7,9 +7,9 @@ const router = Router();
 
 router.post(
   '/',
-  validateRequest(
-    academicDepartmentValidation.createAcademicDepartmentValidationSchema,
-  ),
+  // validateRequest(
+  //   academicDepartmentValidation.createAcademicDepartmentValidationSchema,
+  // ),
   AcademicDepartmentController.createAcademicDepartment,
 );
 router.get('/', AcademicDepartmentController.getAllAcademicDepartment);
