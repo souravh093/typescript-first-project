@@ -14,6 +14,13 @@ app.use(cors());
 // application routes
 app.use('/api/v1', router);
 
+const test = async (req: Request, res: Response) => {
+  const a: number = 10;
+  res.send(a);
+};
+
+app.get('/test', test);
+
 app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'Server is running...',
