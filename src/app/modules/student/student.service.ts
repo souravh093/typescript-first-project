@@ -11,15 +11,7 @@ const createStudentIntoDB = async (studentData: TStudent) => {
   if (await Student.isUserExists(studentData.id)) {
     throw new AppError(409, 'User already Exists');
   }
-  const result = await Student.create(studentData); // built in static method
-
-  // const student = new Student(studentData);
-
-  // if (await student.isUserExits(studentData.id)) {
-  //   throw new Error('User already Exists');
-  // }
-
-  // const result = await student.save(); // built in instance method
+  const result = await Student.create(studentData);
 
   return result;
 };
@@ -47,7 +39,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  const result = await Student.findOne({ id })
+  const result = await Student.findOne({ _id: id })
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -82,10 +74,14 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  const result = await Student.findOneAndUpdate({ id }, modifiedUpdateData, {
-    new: true,
-    runValidators: true,
-  });
+  const result = await Student.findOneAndUpdate(
+    { _id: id },
+    modifiedUpdateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
   return result;
 };
 
@@ -95,7 +91,7 @@ const deleteStudentFromDB = async (id: string) => {
   try {
     session.startTransaction();
     const deleteStudent = await Student.findOneAndUpdate(
-      { id },
+      { _id: id },
       { isDeleted: true },
       { new: true, session },
     );
@@ -104,8 +100,10 @@ const deleteStudentFromDB = async (id: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
     }
 
+    const userId = deleteStudent.user;
+
     const deleteUser = await User.findOneAndUpdate(
-      { id },
+      { userId },
       { isDeleted: true },
       { new: true, session },
     );
