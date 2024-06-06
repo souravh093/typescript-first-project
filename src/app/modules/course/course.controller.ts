@@ -9,7 +9,7 @@ const createCourse = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Course Faculty created Successfully',
+    message: 'Course created Successfully',
     data: result,
   });
 });
