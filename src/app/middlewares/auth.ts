@@ -5,6 +5,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import { NextFunction, Request, Response } from 'express';
 import { TUserRole } from '../modules/user/user.interface';
+import { User } from '../modules/user/user.modal';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +20,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     jwt.verify(
       token,
       config.jwt_access_secret as string,
-      function (err, decoded) {
+      async function (err, decoded) {
         if (err) {
           throw new AppError(
             httpStatus.UNAUTHORIZED,
@@ -27,12 +28,36 @@ const auth = (...requiredRoles: TUserRole[]) => {
           );
         }
 
-        const role = (decoded as JwtPayload).role;
+        const { role, userId, iat } = decoded as JwtPayload;
+
+        const user = await User.isUserExistsByCustomId(userId);
+
+        if (!user) {
+          throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+        }
+
+        if (await User.isUserDeleted(userId)) {
+          throw new AppError(httpStatus.FORBIDDEN, 'User Already Deleted!');
+        }
+
+        if (await User.isUserStatus(userId)) {
+          throw new AppError(httpStatus.FORBIDDEN, 'User Blocked!');
+        }
+
+        if (
+          user.passwordChangedAt &&
+          User.isJWTIssuedBeforePasswordChanged(
+            user.passwordChangedAt,
+            iat as number,
+          )
+        ) {
+          throw new AppError(httpStatus.FORBIDDEN, 'ur are nto authorized');
+        }
 
         if (requiredRoles && !requiredRoles.includes(role)) {
           throw new AppError(
             httpStatus.UNAUTHORIZED,
-            'Your are nto authorized hala ',
+            'Your are nto authorized',
           );
         }
 

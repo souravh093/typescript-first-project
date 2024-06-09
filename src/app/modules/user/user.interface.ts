@@ -20,6 +20,10 @@ export interface UserModel extends Model<TUser> {
 
   isUserDeleted(id: string): boolean;
   isUserStatus(id: string): boolean;
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangedTimestamp: Date,
+    jwtIssuedTimestamp: number,
+  ): boolean;
 }
 
 export type TUserRole = keyof typeof User_ROLE;
