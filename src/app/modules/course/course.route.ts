@@ -8,28 +8,40 @@ const router = Router();
 
 router.post(
   '/',
+  auth('admin'),
   validateRequest(CourseValidation.createCourseValidationSchema),
   CourseController.createCourse,
 );
 
-router.get('/', auth(), CourseController.getAllCourses);
+router.get(
+  '/',
+  auth('admin', 'faculty', 'student'),
+  CourseController.getAllCourses,
+);
 
-router.get('/:id', CourseController.getSingleCourse);
+router.get(
+  '/:id',
+  auth('admin', 'faculty', 'student'),
+  CourseController.getSingleCourse,
+);
 
 router.patch(
   '/:id',
+  auth('admin'),
   validateRequest(CourseValidation.updateCourseValidationSchema),
   CourseController.updateCourse,
 );
 
 router.put(
   '/:courseId/assign-faculties',
+  auth('admin'),
   validateRequest(CourseValidation.FacultiesWithCourseValidationSchema),
   CourseController.assignFacultiesWithCourse,
 );
 
 router.delete(
   '/:courseId/remove-faculties',
+  auth('admin'),
   validateRequest(CourseValidation.FacultiesWithCourseValidationSchema),
   CourseController.removeFacultiesWithCourse,
 );
