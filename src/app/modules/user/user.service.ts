@@ -17,7 +17,8 @@ import { Admin } from '../admin/admin.model';
 import { TFaculty } from '../faculty/faculty.interface';
 import { Faculty } from '../faculty/faculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
-
+import { JwtPayload } from 'jsonwebtoken';
+// TODO: check when i create student admin have in the authorization
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // set student role and password
   const userData: Partial<TUser> = {};
@@ -178,8 +179,38 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
+const getMe = async (payload: JwtPayload) => {
+  // const decoded = verifyToken(token, config.jwt_access_secret as string);
+
+  // const { userId, role } = decoded;
+
+  let result = null;
+
+  if (payload.role === 'student') {
+    result = await Student.findOne({ id: payload.userId })
+      .populate('user')
+      .populate('admissionSemester')
+      .populate('academicDepartment')
+      .exec();
+  } else if (payload.role === 'admin') {
+    result = await Admin.findOne({ id: payload.userId }).populate('user');
+  } else if (payload.role === 'faculty') {
+    result = await Faculty.findOne({ id: payload.userId }).populate('user');
+  }
+
+  return result;
+};
+
+const changeStatus = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(id, payload, { new: true });
+
+  return result;
+};
+
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
+  getMe,
+  changeStatus,
 };

@@ -53,11 +53,11 @@ export const globalErrorHandler: ErrorRequestHandler = (
     errorSources = [
       {
         path: '',
-        message: error.message,
+        message: error?.message,
       },
     ];
   } else if (error instanceof Error) {
-    message = error.message;
+    message = error?.message;
     errorSources = [
       {
         path: '',

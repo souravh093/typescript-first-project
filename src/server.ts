@@ -23,13 +23,13 @@ process.on('unhandledRejection', () => {
   console.log('unhandledRejection is detected, shutting down...');
   if (server) {
     server.close(() => {
-      process.exit();
+      process.exit(1);
     });
   }
   process.exit();
 });
 
 process.on('uncaughtException', () => {
-  console.log('unhandledRejection is detected, shutting down...');
+  console.log('uncaughtException is detected, shutting down...');
   process.exit(1);
 });

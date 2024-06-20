@@ -12,12 +12,12 @@ export const sendEmail = async (resetUILink: string, email: string) => {
     },
   });
 
-  // send mail with defined transport object
+  // send mail
   await transporter.sendMail({
-    from: 'souravofficial.web@gmail.com', // sender address
-    to: `${email}`, // list of receivers
-    subject: 'Click below like to reset password', // Subject line
-    text: 'Reset you password within 10 mins', // plain text body
-    html: `<a href=${resetUILink}>${resetUILink}</a>`, // html body
+    from: 'souravofficial.web@gmail.com',
+    to: `${email}`,
+    subject: 'Reset you password within 10 mins',
+    text: '',
+    html: resetUILink,
   });
 };

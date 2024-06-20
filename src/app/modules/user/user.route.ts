@@ -15,17 +15,24 @@ router.post(
   validateRequest(studentValidations.createStudentValidationSchema),
   UserController.createStudent,
 );
+
 router.post(
   '/create-faculty',
   auth(User_ROLE.admin),
   validateRequest(createFacultyValidationSchema),
   UserController.createFaculty,
 );
+
 router.post(
   '/create-admin',
   validateRequest(createAdminValidationSchema),
   UserController.createAdmin,
 );
+
 router.post('/create-faculty');
+
+router.put('/change-status/:id', auth('admin'), UserController.changeStatus);
+
+router.get('/me', auth('admin', 'faculty', 'student'), UserController.getMe);
 
 export const UserRoutes = router;

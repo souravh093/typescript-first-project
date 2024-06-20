@@ -3,3 +3,5 @@ export const User_ROLE = {
   faculty: 'faculty',
   admin: 'admin',
 } as const;
+
+export const UserStatus = ['in-progress', 'blocked'];

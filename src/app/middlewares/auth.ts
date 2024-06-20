@@ -1,74 +1,67 @@
-import catchAsync from '../utils/catchAsync';
-import AppError from '../errors/AppError';
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
-import { NextFunction, Request, Response } from 'express';
+import AppError from '../errors/AppError';
 import { TUserRole } from '../modules/user/user.interface';
+import catchAsync from '../utils/catchAsync';
 import { User } from '../modules/user/user.modal';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
 
-    // if the token is sent from the client
+    // checking if the token is missing
     if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
     }
 
-    // if the token not valid
-    jwt.verify(
+    // checking if the given token is valid
+    const decoded = jwt.verify(
       token,
       config.jwt_access_secret as string,
-      async function (err, decoded) {
-        if (err) {
-          throw new AppError(
-            httpStatus.UNAUTHORIZED,
-            'Your are nto authorized',
-          );
-        }
+    ) as JwtPayload;
 
-        const { role, userId, iat } = decoded as JwtPayload;
+    const { role, userId, iat } = decoded;
 
-        const user = await User.isUserExistsByCustomId(userId);
+    // checking if the user is exist
+    const user = await User.isUserExistsByCustomId(userId);
 
-        if (!user) {
-          throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
-        }
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
+    }
+    // checking if the user is already deleted
 
-        if (await User.isUserDeleted(userId)) {
-          throw new AppError(httpStatus.FORBIDDEN, 'User Already Deleted!');
-        }
+    const isDeleted = user?.isDeleted;
 
-        if (await User.isUserStatus(userId)) {
-          throw new AppError(httpStatus.FORBIDDEN, 'User Blocked!');
-        }
+    if (isDeleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted!');
+    }
 
-        if (
-          user.passwordChangedAt &&
-          User.isJWTIssuedBeforePasswordChanged(
-            user.passwordChangedAt,
-            iat as number,
-          )
-        ) {
-          throw new AppError(httpStatus.FORBIDDEN, 'ur are nto authorized');
-        }
+    // checking if the user is blocked
+    const userStatus = user?.status;
 
-        if (requiredRoles && !requiredRoles.includes(role)) {
-          throw new AppError(
-            httpStatus.UNAUTHORIZED,
-            'Your are nto authorized',
-          );
-        }
+    if (userStatus === 'blocked') {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
+    }
 
-        req.user = decoded as JwtPayload;
+    if (
+      user.passwordChangedAt &&
+      User.isJWTIssuedBeforePasswordChanged(
+        user.passwordChangedAt,
+        iat as number,
+      )
+    ) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+    }
 
-        next();
-      },
-    );
+    if (requiredRoles && !requiredRoles.includes(role)) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+    }
+
+    req.user = decoded as JwtPayload;
+    next();
   });
-}; // need help
+};
 
 export default auth;
-
-// need help how to all controller access user
