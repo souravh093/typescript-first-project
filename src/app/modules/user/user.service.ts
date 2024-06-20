@@ -18,8 +18,14 @@ import { TFaculty } from '../faculty/faculty.interface';
 import { Faculty } from '../faculty/faculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { JwtPayload } from 'jsonwebtoken';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+
 // TODO: check when i create student admin have in the authorization
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (
+  password: string,
+  payload: TStudent,
+  file: any,
+) => {
   // set student role and password
   const userData: Partial<TUser> = {};
 
@@ -28,7 +34,6 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   userData.email = payload.email;
 
   // find academic semester info
-
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
   );
@@ -47,6 +52,14 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     // set Generate id
     userData.id = await generateStudentId(admissionSemester);
 
+    const imageName: string = `${userData.id}${payload?.name?.firstName}`;
+    const path: string = file?.path;
+
+    // send image to cloudinary
+    const { secure_url } = (await sendImageToCloudinary(imageName, path)) as {
+      secure_url: string;
+    };
+
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session }); // array
 
@@ -57,6 +70,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImg = secure_url;
 
     // create a student (transaction-2)
     const newStudent = await Student.create([payload], { session });

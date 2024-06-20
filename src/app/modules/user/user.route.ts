@@ -1,24 +1,29 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { UserController } from './user.controller';
 import { studentValidations } from '../student/student.validation';
 import validateRequest from '../../middlewares/validateRequest';
 import { createFacultyValidationSchema } from '../faculty/faculty.validation';
 import { createAdminValidationSchema } from '../admin/admin.validation';
 import auth from '../../middlewares/auth';
-import { User_ROLE } from './user.contstant';
+import { upload } from '../../utils/sendImageToCloudinary';
 
 const router = Router();
 
 router.post(
   '/create-student',
-  auth(User_ROLE.admin),
+  auth('admin'),
+  upload.single('file'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   validateRequest(studentValidations.createStudentValidationSchema),
   UserController.createStudent,
 );
 
 router.post(
   '/create-faculty',
-  auth(User_ROLE.admin),
+  auth('admin'),
   validateRequest(createFacultyValidationSchema),
   UserController.createFaculty,
 );
